@@ -17,11 +17,12 @@
     var remainingScripts = satScripts.length;
     Array.prototype.slice.call(satScripts).forEach(function (scriptNode) {
       var xhr = new XMLHttpRequest();
-      xhr.open('GET', scriptNode.getAttribute('src'), true);
+      var name = scriptNode.getAttribute('src');
+      xhr.open('GET', name, true);
       xhr.onreadystatechange = function () {
         if (this.readyState === 4) {
           remainingScripts--;
-          _runFlow(this.responseText, (scriptNode.getAttribute('data-flow') || '').split(','));
+          _runFlow(this.responseText, (scriptNode.getAttribute('data-flow') || '').split(','), name);
         }
         if (!remainingScripts) {
           _runLoadCallbacks();
@@ -46,19 +47,43 @@
 
 
   var _flowSteps = {
-    'run': function (code) {
-      var code = new Function(code);
-      code.call(this);
+    'run': function (input, info) {
+      var codeFn = new Function(input);
+      codeFn.call(this);
+      return [input, info];
+    },
+    'scriptRun': function (input, info) {
+      var _scriptElt = document.createElement('script');
+      _scriptElt.setAttribute('type', 'text/javascript');
+      _scriptElt.appendChild(document.createTextNode(input));
+      document.body.appendChild(_scriptElt);
+      var codeFn = new Function(input);
+      codeFn.call(this);
+      return [input, info];
     }
   };
-  function _runFlow (code, steps) {
+  function _runFlow (code, steps, name) {
     var stage = code;
+    var info = {name: name, code: code};
     for (var i = 0; i < steps.length; i++) {
       if (_flowSteps.hasOwnProperty(steps[i])) {
-        stage = _flowSteps[steps[i]].call(window, code);
+        var resp = _flowSteps[steps[i]].call(window, stage, info);
+        stage = resp[0];
+        info = resp[1];
       } else if (steps[i]) {
         throw new Error('Unknown step ' + steps[i]);
       }
     }
+    return stage;
+  }
+
+  function _register (name, fn) {
+    _flowSteps[name] = fn;
+  }
+
+  window.sat = _runFlow;
+  window.sat.register =  _register;
+  window.sat.adapters = function () {
+    return Object.keys(_flowSteps);
   }
 })(window, document);

@@ -6,4 +6,4 @@
  * To change this template use File | Settings | File Templates.
  */
 
-window.isRun = 'I\'ve been run';
+var isRun = 'I\'ve been run';

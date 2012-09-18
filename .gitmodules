@@ -1,0 +1,6 @@
+[submodule "lib/esprima"]
+	path = lib/esprima
+	url = https://xcambar@github.com/ariya/esprima.git
+[submodule "lib/escodegen"]
+	path = lib/escodegen
+	url = https://xcambar@github.com/Constellation/escodegen.git
