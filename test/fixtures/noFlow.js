@@ -1,0 +1,1 @@
+window.testVar = 'I should not be set';
