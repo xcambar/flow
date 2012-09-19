@@ -57,8 +57,6 @@
       _scriptElt.setAttribute('type', 'text/javascript');
       _scriptElt.appendChild(document.createTextNode(input));
       document.body.appendChild(_scriptElt);
-      var codeFn = new Function(input);
-      codeFn.call(this);
       return [input, info];
     }
   };
