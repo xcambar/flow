@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <title>Jasmine Spec Runner</title>
+    <title>SAT - Jasmine Spec Runner</title>
 
     <link rel="shortcut icon" type="image/png" href="jasmine-1.1.0/jasmine_favicon.png">
     <link rel="stylesheet" type="text/css" href="jasmine-1.1.0/jasmine.css">
@@ -15,9 +15,14 @@
     <script type="text/javascript" src="../src/adapters/escodegen.js"></script>
     <script type="text/javascript" src="../src/adapters/coverage.js"></script>
     <script type="text/javascript" src="../src/adapters/logger.js"></script>
-    <sat-script src="fixtures/noFlow.js"></sat-script>
-    <sat-script src="fixtures/runFlow.js" data-flow="scriptRun"></sat-script>
-    <sat-script src="fixtures/multipleCalls.js" data-flow="run,run,run"></sat-script>
+    <sat-flow>
+      <sat-script src="../src/sat.js" data-steps="esprima,coverage,escodegen,run"></sat-script>
+    </sat-flow>
+    <sat-flow>
+      <sat-script src="fixtures/noFlow.js"></sat-script>
+      <sat-script src="fixtures/runFlow.js" data-steps="scriptRun"></sat-script>
+      <sat-script src="fixtures/multipleCalls.js" data-steps="run,run,run"></sat-script>
+    </sat-flow>
     <!-- spec files -->
     <script type="text/javascript" src="spec/mainSpec.js"></script>
     <script type="text/javascript">
@@ -51,5 +56,5 @@
 
   </head>
 
-  </html>
-<body></body>
+  <body></body>
+</html>
