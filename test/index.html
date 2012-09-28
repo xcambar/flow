@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <title>SAT - Jasmine Spec Runner</title>
 
@@ -7,14 +7,26 @@
     <link rel="stylesheet" type="text/css" href="jasmine-1.1.0/jasmine.css">
     <script type="text/javascript" src="jasmine-1.1.0/jasmine.js"></script>
     <script type="text/javascript" src="../src/reporters/jasmine/html.js"></script>
-    <!-- source files -->
+    <script type="text/javascript" src="../src/reporters/jasmine/mine.js"></script>
+
+    <!-- App files -->
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
+    <!--<script type="text/javascript" src="../lib/jquery-1.8.2.min.js"></script>-->
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.2/angular.min.js"></script>
+    <!--<script type="text/javascript" src="../lib/angular.min.js"></script>-->
+    <link rel="stylesheet" href="../lib/bootstrap/css/bootstrap.min.css">
+    <script type="text/javascript" src="../lib/bootstrap/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../lib/esprima/esprima.js"></script>
     <script type="text/javascript" src="../lib/escodegen/escodegen.js"></script>
+    <!-- source files -->
     <script type="text/javascript" src="../src/sat.js"></script>
-    <script type="text/javascript" src="../src/adapters/esprima.js"></script>
-    <script type="text/javascript" src="../src/adapters/escodegen.js"></script>
-    <script type="text/javascript" src="../src/adapters/coverage.js"></script>
-    <script type="text/javascript" src="../src/adapters/logger.js"></script>
+    <script type="text/javascript">
+      sat.conf({
+        baseUrl: '..',
+        adapters: ['esprima', 'escodegen', 'coverage', 'logger']
+      });
+    </script>
+    <!-- SAT tests tags -->
     <sat-flow>
       <sat-script src="../src/sat.js" data-steps="esprima,coverage,escodegen,run"></sat-script>
     </sat-flow>
@@ -25,38 +37,31 @@
     </sat-flow>
     <!-- spec files -->
     <script type="text/javascript" src="spec/mainSpec.js"></script>
-
+    <script type="text/javascript" src="../src/jasmine/init.js"></script>
   </head>
 
   <body>
-    <div id="testReport"></div>
-    <script type="text/javascript">
-      (function() {
-        var jasmineEnv = jasmine.getEnv();
-        jasmineEnv.updateInterval = 1000;
-
-        var trivialReporter = new jasmine.TrivialReporter(document.getElementById('testReport'));
-
-        jasmineEnv.addReporter(trivialReporter);
-
-        jasmineEnv.specFilter = function(spec) {
-          return trivialReporter.specFilter(spec);
-        };
-
-        var currentWindowOnload = window.onload;
-
-        window.onload = function() {
-          if (currentWindowOnload) {
-            currentWindowOnload();
-          }
-          execJasmine();
-        };
-
-        function execJasmine() {
-          jasmineEnv.execute();
-        }
-
-      })();
-    </script>
+    <div class="navbar">
+      <div class="navbar-inner">
+        <a class="brand" href="/test">SAT</a>
+        <ul class="nav">
+          <li><a href="#testReport">Test Report</a></li>
+          <li><a href="#codeCoverage">Code coverage</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span2">
+          <ul>
+            <li>abcd</li>
+            <li>efgh</li>
+          </ul>
+        </div>
+        <div class="span10">
+          <div id="testReport"></div>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
