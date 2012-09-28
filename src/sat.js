@@ -7,11 +7,12 @@
 
 (function (window, doc) {
   "use strict";
-  var _onLoadCallbacks = [];
+  var _satConfig = {};
+  _satConfig.onLoadCallbacks = [];
 
   function blocksAnyCall () {
     if (typeof window.onload === 'function') {
-      _onLoadCallbacks.push(window.onload);
+      _satConfig.onLoadCallbacks.push(window.onload);
       window.onload = null;
     }
     var satFlows = Array.prototype.slice.call(doc.querySelectorAll('sat-flow'));
@@ -44,14 +45,14 @@
       });
     }
     function _runLoadCallbacks () {
-      _onLoadCallbacks.forEach(function (fn) {
+      _satConfig.onLoadCallbacks.forEach(function (fn) {
         setTimeout(fn, 1); // So we keep asynchronicity
       });
     }
   }
   window.addEventListener('load', blocksAnyCall);
 
-  var _flowActions = {
+  _satConfig.flowActions = {
     'run': function (input, info) {
       var codeFn = new Function(input);
       codeFn.call(this);
@@ -69,8 +70,8 @@
     var stage = code;
     var info = {name: name, code: code};
     for (var i = 0; i < steps.length; i++) {
-      if (_flowActions.hasOwnProperty(steps[i])) {
-        var resp = _flowActions[steps[i]].call(window, stage, info);
+      if (_satConfig.flowActions.hasOwnProperty(steps[i])) {
+        var resp = _satConfig.flowActions[steps[i]].call(window, stage, info);
         stage = resp[0];
         info = resp[1];
       } else if (steps[i]) {
@@ -81,41 +82,63 @@
   }
 
   function _register (name, fn) {
-    _flowActions[name] = fn;
+    _satConfig.flowActions[name] = fn;
   }
 
   function onLoadWrapper (eventType, callback, useCapture) {
     if (eventType === 'load') {
-      _onLoadCallbacks.push(callback);
+      _satConfig.onLoadCallbacks.push(callback);
     }
     return this;
   };
 
   if (!window.sat) {
     window.addEventListener("sat:override", function (evt) {
-      evt.passCallbacks(_onLoadCallbacks, _flowActions);
-      _applyFlow = evt.applyFlow;
+      evt.passConfig(_satConfig);
     }, false);
   } else {
     var evt = document.createEvent("Events");
     evt.initEvent('sat:override', true, true);
     evt.applyFlow = _applyFlow;
-    evt.passCallbacks = function (_loadCBs, _flow) {
-      _onLoadCallbacks = _loadCBs;
-      var cbIndex = _onLoadCallbacks.indexOf(blocksAnyCall);
+    evt.passConfig = function (config) {
+      var cbIndex = config.onLoadCallbacks.indexOf(blocksAnyCall);
       if (cbIndex !== -1) {
-        _onLoadCallbacks.splice(cbIndex, 1);
+        config.onLoadCallbacks.splice(cbIndex, 1);
       }
-      _flowActions = _flow;
+      _satConfig = config;
       window.addEventListener = onLoadWrapper;
     };
     document.dispatchEvent(evt);
   }
 
+  function _addStep (steps) {
+    steps.forEach(function (value) {
+      var head = document.head;
+      var _script = document.createElement('script');
+      _script.setAttribute('type', 'text/javascript');
+      _script.setAttribute('src', [_satConfig._public.baseUrl || '', 'src/adapters', value + '.js'].join('/'))
+      head.appendChild(_script);
+    })
+  }
+
   window.addEventListener = onLoadWrapper;
   window.sat = _applyFlow;
   window.sat.register =  _register;
+
+  //Utilities
   window.sat.adapters = function () {
-    return Object.keys(_flowActions);
-  }
+    return Object.keys(_satConfig.flowActions);
+  };
+  window.sat.conf = function (conf) {
+    _satConfig._public = _satConfig._public || {};
+    Object.keys(conf).forEach(function (key) {
+      if (key === 'adapters') {
+        _addStep(conf[key]);
+      }
+      Object.defineProperty(_satConfig._public, key, {
+        value: conf[key],
+        writable: false
+      });
+    });
+  };
 })(window, document);
