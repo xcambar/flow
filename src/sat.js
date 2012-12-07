@@ -10,38 +10,36 @@
   var _satConfig = {};
   _satConfig.onLoadCallbacks = [];
 
+  function _get (script, callback, sync) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', script, arguments.length === 3 ? !sync : true);
+    callback = callback || function () {};
+    xhr.send();
+    if (!sync) {
+      xhr.onreadystatechange = callback;
+    } else {
+      callback.apply(xhr);
+    }
+  }
   function blocksAnyCall () {
     if (typeof window.onload === 'function') {
       _satConfig.onLoadCallbacks.push(window.onload);
       window.onload = null;
     }
-    var satFlows = Array.prototype.slice.call(doc.querySelectorAll('sat-flow'));
-    _runNextFlow();
-    function _runNextFlow () {
-      var next = satFlows.shift();
-      if (next) {
-        _runFlow(next);
-      } else {
-        _runLoadCallbacks();
-      }
-    }
+    var satFlows = _satConfig._public.flows;
+    _runFlow(satFlows);
     function _runFlow (flow) {
-      var flowSteps = Array.prototype.slice.call(flow.children);
+      var _flowKeys = Object.keys(flow);
       var runFlows = 0;
-      flowSteps.forEach(function (scriptNode, index, all) {
-        var totalLength = all.length;
-        var xhr = new XMLHttpRequest();
-        var name = scriptNode.getAttribute('src');
-        xhr.open('GET', name, true);
-        xhr.onreadystatechange = function () {
+      _flowKeys.forEach(function (scriptName, index, allKeys) {
+        _get(scriptName,function () {
           if (this.readyState === 4) {
-            _applyFlow(this.responseText, (scriptNode.getAttribute('data-steps') || '').split(','), name);
+            _applyFlow(this.responseText, flow[scriptName] || [], scriptName);
           }
-          if (++runFlows === flowSteps.length) {
-            _runNextFlow();
+          if (++runFlows === _flowKeys.length) {
+            _runLoadCallbacks();
           }
-        };
-        xhr.send();
+        });
       });
     }
     function _runLoadCallbacks () {
@@ -111,14 +109,21 @@
     document.dispatchEvent(evt);
   }
 
-  function _addStep (steps) {
+  function _addScript (steps) {
     steps.forEach(function (value) {
       var head = document.head;
       var _script = document.createElement('script');
       _script.setAttribute('type', 'text/javascript');
-      _script.setAttribute('src', [_satConfig._public.baseUrl || '', 'src/adapters', value + '.js'].join('/'))
+      _script.setAttribute('src', value);
       head.appendChild(_script);
-    })
+    });
+  }
+
+  function _normalizeURL (key, v) {
+    if (key === 'adapters') {
+      return [_satConfig._public.baseUrl || '', 'src/adapters', v + '.js'].join('/');
+    }
+    return v;
   }
 
   window.addEventListener = onLoadWrapper;
@@ -131,14 +136,23 @@
   };
   window.sat.conf = function (conf) {
     _satConfig._public = _satConfig._public || {};
-    Object.keys(conf).forEach(function (key) {
-      if (key === 'adapters') {
-        _addStep(conf[key]);
-      }
-      Object.defineProperty(_satConfig._public, key, {
-        value: conf[key],
-        writable: false
+    if (typeof conf === 'string') {
+      _get(conf, function () {
+        _executeConf(JSON.parse(this.responseText));
+      }, true);
+    } else {
+      _executeConf(conf);
+    }
+    function _executeConf (conf) {
+      Object.keys(conf).forEach(function (key) {
+        if (['adapters', 'externals'].indexOf(key) !== -1) {
+          _addScript(conf[key].map(_normalizeURL.bind([], key)));
+        }
+        Object.defineProperty(_satConfig._public, key, {
+          value: conf[key],
+          writable: false
+        });
       });
-    });
+    }
   };
 })(window, document);

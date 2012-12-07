@@ -5,14 +5,12 @@
     var jasmineEnv = jasmine.getEnv();
     jasmineEnv.updateInterval = 1000;
 
-    var myReporter = new jasmine.myReporter();
     var trivialReporter = new jasmine.TrivialReporter(document.getElementById('testReport'));
 
     jasmineEnv.addReporter(trivialReporter);
-    jasmineEnv.addReporter(myReporter);
 
     jasmineEnv.specFilter = function(spec) {
-      return myReporter.specFilter(spec);
+      return trivialReporter.specFilter(spec);
     };
     if (currentWindowOnload) {
       currentWindowOnload();

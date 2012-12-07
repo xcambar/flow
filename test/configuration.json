@@ -1,0 +1,11 @@
+{
+  "baseUrl": "..",
+  "externals": ["/lib/esprima/esprima.js", "/lib/escodegen/escodegen.js"],
+  "adapters": ["esprima", "escodegen", "coverage", "logger"],
+  "flows": {
+      "../src/sat.js" : ["esprima","coverage","escodegen","run"],
+      "fixtures/noFlow.js" : [],
+      "fixtures/runFlow.js": ["scriptRun"],
+      "fixtures/multipleCalls.js": ["run","run","run"]
+  }
+}
