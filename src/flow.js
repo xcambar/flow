@@ -90,7 +90,7 @@
     return this;
   };
 
-  if (!window.sat) {
+  if (!window.flow) {
     window.addEventListener("sat:override", function (evt) {
       evt.passConfig(_satConfig);
     }, false);
@@ -127,14 +127,14 @@
   }
 
   window.addEventListener = onLoadWrapper;
-  window.sat = _applyFlow;
-  window.sat.register =  _register;
+  window.flow = _applyFlow;
+  window.flow.register =  _register;
 
   //Utilities
-  window.sat.adapters = function () {
+  window.flow.adapters = function () {
     return Object.keys(_satConfig.flowActions);
   };
-  window.sat.conf = function (conf) {
+  window.flow.conf = function (conf) {
     _satConfig._public = _satConfig._public || {};
     if (typeof conf === 'string') {
       _get(conf, function () {
