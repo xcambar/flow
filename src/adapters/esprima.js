@@ -5,7 +5,7 @@
  * Time: 22:24
  */
 
-sat.register('esprima', function (input, info) {
+flow.register('esprima', function (input, info) {
   "use strict";
   return [esprima.parse(input, {range: true}), info];
 });

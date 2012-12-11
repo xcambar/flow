@@ -5,7 +5,7 @@
  * Time: 22:24
  */
 
-sat.register('escodegen', function (input, info) {
+flow.register('escodegen', function (input, info) {
   "use strict";
   return [escodegen.generate(input), info];
 });

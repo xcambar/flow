@@ -5,7 +5,7 @@
  * Time: 22:24
  */
 
-sat.register('logger', function (input, info) {
+flow.register('logger', function (input, info) {
   "use strict";
   console.log(input);
   return [input, info];

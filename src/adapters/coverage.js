@@ -133,7 +133,7 @@
 
   };
 
-  sat.register('coverage', function (input, info) {
+  flow.register('coverage', function (input, info) {
     var instrument = new Instrument(input, info);
     return [instrument.instrument(), info];
   });
