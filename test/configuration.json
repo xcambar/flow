@@ -1,7 +1,11 @@
 {
-  "baseUrl": "..",
   "externals": ["/lib/esprima/esprima.js", "/lib/escodegen/escodegen.js"],
-  "adapters": ["esprima", "escodegen", "coverage", "logger"],
+  "adapters": [
+    "/src/adapters/esprima.js",
+    "/src/adapters/escodegen.js",
+    "/src/adapters/coverage.js",
+    "/src/adapters/logger.js"
+  ],
   "flows": {
       "fixtures/noFlow.js" : [],
       "fixtures/runFlow.js": ["scriptRun"],

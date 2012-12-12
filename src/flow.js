@@ -5,6 +5,7 @@
  * Time: 19:50
  */
 
+/*jshint browser:true*/
 (function (window, doc) {
   "use strict";
   var _satConfig = {};
@@ -88,7 +89,7 @@
       _satConfig.onLoadCallbacks.push(callback);
     }
     return this;
-  };
+  }
 
   if (!window.flow) {
     window.addEventListener("sat:override", function (evt) {
@@ -119,13 +120,6 @@
     });
   }
 
-  function _normalizeURL (key, v) {
-    if (key === 'adapters') {
-      return [_satConfig._public.baseUrl || '', 'src/adapters', v + '.js'].join('/');
-    }
-    return v;
-  }
-
   window.addEventListener = onLoadWrapper;
   window.flow = _applyFlow;
   window.flow.register =  _register;
@@ -146,7 +140,7 @@
     function _executeConf (conf) {
       Object.keys(conf).forEach(function (key) {
         if (['adapters', 'externals'].indexOf(key) !== -1) {
-          _addScript(conf[key].map(_normalizeURL.bind([], key)));
+          _addScript(conf[key]);
         }
         Object.defineProperty(_satConfig._public, key, {
           value: conf[key],
